@@ -4,11 +4,16 @@ const toPlainText = require("./toPlainText")
 
 const workbook = new ExcelJS.Workbook()
 
+workbook.creator = 'VKF'
+
+const fileName = 'Terminofeu_Export.xlsx'
+
 const worksheet = workbook.addWorksheet("My Sheet")
 
 worksheet.columns = [
   { header: "Begriff", key: "term", width: 32 },
-  { header: "Definition", key: "definition", width: 62 },
+  { header: "Definition", key: "definition", width: 62, outlineLevel: 1 },
+  { header: "Anmerkung", key: "note", width: 62 },
 ]
 
 const client = sanityClient({
@@ -18,18 +23,21 @@ const client = sanityClient({
   useCdn: false, // `false` if you want to ensure fresh data
 })
 
-const query = /* groq */ `*[_type == 'entry' && status == "definition"] {deTitle, 'definition': content.de.definition}`
+const query = /* groq */ `*[_type == 'entry' && status == "definition"] {deTitle, 'definition': content.de.definition, 'note': content.de.note}`
 
 client
   .fetch(query)
   .then((entries) => {
     entries.forEach((entry) => {
+      const note = entry.note ? toPlainText(entry.note) : ''
+      const definition = entry.definition ? toPlainText(entry.definition) : ''
       worksheet.addRow({
         term: entry.deTitle,
-        definition: toPlainText(entry.definition),
+        definition,
+        note,
       })
     })
-    return workbook.xlsx.writeFile("test.xlsx")
+    return workbook.xlsx.writeFile(fileName)
   })
   .then(() => {
     console.log("success")
