@@ -8,11 +8,11 @@ workbook.creator = 'VKF'
 
 const fileName = 'Terminofeu_Export.xlsx'
 
-const worksheet = workbook.addWorksheet("My Sheet")
+const worksheet = workbook.addWorksheet("Deutsch")
 
 worksheet.columns = [
   { header: "Begriff", key: "term", width: 32 },
-  { header: "Definition", key: "definition", width: 62, outlineLevel: 1 },
+  { header: "Definition", key: "definition", width: 62 },
   { header: "Anmerkung", key: "note", width: 62 },
 ]
 
@@ -37,6 +37,7 @@ client
         note,
       })
     })
+
     return workbook.xlsx.writeFile(fileName)
   })
   .then(() => {
